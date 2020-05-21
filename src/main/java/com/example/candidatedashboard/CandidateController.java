@@ -1,5 +1,7 @@
 package com.example.candidatedashboard;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,5 +28,22 @@ public class CandidateController {
 			return candidate.get();
 		else
 			throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Candidate Id Not Found");
+	}
+
+	@GetMapping("/candidates/{sid}/{lid}")
+	public List<Candidate> getCandidatesBySkillAndLocation(@PathVariable("sid") int sid, @PathVariable("lid") int lid) {
+
+		List<Candidate> candids = new ArrayList<>();
+
+		if (sid == 0 && lid == 0) {
+			candids = (List<Candidate>) candidates.findAll();
+		} else if (sid != 0 && lid != 0) {
+			candids = candidates.findBySkillIdAndLocationId(sid, lid);
+		} else if (sid != 0 && lid == 0) {
+			candids = candidates.findBySkillId(sid);
+		} else if (sid == 0 && lid != 0) {
+			candids = candidates.findBySkillId(lid);
+		}
+		return candids;
 	}
 }

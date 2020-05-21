@@ -27,27 +27,29 @@
 		});
 	}
 
-	function getCandidatesData() {
-		$.getJSON('/candidates', candidatesData);
+	function getCandidatesData(sid, lid) {
+		$.getJSON('/candidates/' + sid + "/" + lid, candidatesData);
 	}
 
 	function candidatesData(data) {
-		var tbody = "<tbody>";
-
-		$.each(data, function(index, d) {
-			tbody = tbody + "<tr>";
-			tbody = tbody + "<td><a href = '#' onclick = getCandidateInfo("
-					+ d.id + ");>" + d.id + "</a></td>";
-			tbody = tbody + "<td><a href = '#' onclick = getCandidateInfo("
-					+ d.id + ");>" + d.name + "</a></td>";
-			tbody = tbody + "<td><a href = '#' onclick = getCandidateInfo("
-					+ d.id + ");>" + d.email + "</a></td>";
-			tbody = tbody + "</tr>";
-		});
-
-		tbody = tbody + "</tbody>";
-
-		$("#candidates").append(tbody);
+		if (data.length == 0) {
+			$("#candidatesTBody").html("");
+		} else {
+			$("#candidatesTBody").html("");
+			var tbody;
+			$.each(data, function(index, d) {
+				tbody = tbody + "<tr>";
+				tbody = tbody + "<td><a href = '#' onclick = getCandidateInfo("
+						+ d.id + ");>" + d.id + "</a></td>";
+				tbody = tbody + "<td><a href = '#' onclick = getCandidateInfo("
+						+ d.id + ");>" + d.name + "</a></td>";
+				tbody = tbody + "<td><a href = '#' onclick = getCandidateInfo("
+						+ d.id + ");>" + d.email + "</a></td>";
+				tbody = tbody + "</tr>";
+			});
+			$("#candidatesTBody").html(tbody);
+			buildPagination();
+		}
 	}
 
 	function getCandidateInfo(id) {
@@ -55,19 +57,92 @@
 	}
 
 	function singleCandidate(data) {
-		$("#candidateInfo").html("");
-		var cData;
-		cData = "Id: " + data.id + "<br />";
-		cData = cData + "Name: " + data.name + "<br />";
-		cData = cData + "Email: " + data.email + "<br />";
-		cData = cData + "Location: " + data.locationId + "<br />";
-		cData = cData + "Skills: " + data.skillId;
+		var skillName = '';
+		var locationName = '';
+		$.getJSON("/locations/" + data.locationId, function(result) {
+			locationName = result.name;
+			$.getJSON("/skills/" + data.skillId, function(result) {
+				skillName = result.name;
 
-		$("#candidateInfo").append(cData);
+				$("#candidateInfo").html("");
+				var cData;
+				cData = "Id: " + data.id + "<br />";
+				cData = cData + "Name: " + data.name + "<br />";
+				cData = cData + "Email: " + data.email + "<br />";
+				cData = cData + "Location: " + locationName + "<br />";
+				cData = cData + "Skills: " + skillName;
+
+				$("#candidateInfo").append(cData);
+			});
+		});
+	}
+
+	function doFilter() {
+		var selectedSkill = $("#skillsDD").val();
+		var selectedLocation = $("#locationsDD").val();
+
+		if (selectedSkill == "0" && selectedLocation == "0") {
+			alert("No filter has been selected!");
+			return;
+		} else {
+			getCandidatesData(selectedSkill, selectedLocation);
+		}
+	}
+
+	function buildPagination() {
+		var table = '#candidates';
+		$('.pagination').html('');
+		var trnum = 0;
+		var maxRows = 5;
+		var totalRows = $(table + ' tbody tr').length;
+
+		$(table + ' tr:gt(0)').each(function() {
+			trnum++
+			if (trnum > maxRows) {
+				$(this).hide()
+			}
+			if (trnum <= maxRows) {
+				$(this).show()
+			}
+		})
+
+		if (totalRows > maxRows) {
+			var pagenum = Math.ceil(totalRows / maxRows)
+			for (var i = 1; i <= pagenum;) {
+				$('.pagination')
+						.append(
+								'<li data-page="'+i+'">\<span>'
+										+ i++
+										+ '<span class="sr-only">(current)</span></span>\</li>')
+						.show()
+			}
+			$('.pagination li:first-child').addClass('active')
+			$('.pagination li')
+					.on(
+							'click',
+							function() {
+								var pageNum = $(this).attr('data-page')
+								var trIndex = 0;
+								$('.pagination li').removeClass('active')
+								$(this).addClass('active')
+								$(table + ' tr:gt(0)')
+										.each(
+												function() {
+													trIndex++
+													if (trIndex > (maxRows * pageNum)
+															|| trIndex <= ((maxRows * pageNum) - maxRows)) {
+														$(this).hide()
+													} else {
+														$(this).show()
+													}
+												})
+							})
+
+		}
 	}
 </script>
 </head>
-<body onload="getDropDownsData(); getCandidatesData();">
+<body onload="getDropDownsData(); getCandidatesData('0', '0');">
 	<div class="container">
 		<div class="row">
 			<div class="col-sm-10">
@@ -76,7 +151,7 @@
 				</select> Location: <select id="locationsDD">
 					<option value="0">-- select --</option>
 				</select>
-				<button>Search Candidates</button>
+				<button onclick="doFilter();">Search Candidates</button>
 			</div>
 		</div>
 	</div>
@@ -92,11 +167,22 @@
 							<th>Email</th>
 						</tr>
 					</thead>
+					<tbody id="candidatesTBody">
+
+					</tbody>
 				</table>
+
+				<div class="pagination-container">
+					<nav>
+					<ul class="pagination"></ul>
+					</nav>
+				</div>
+
 			</div>
 			<div class="col-sm-6" id="candidateInfo"></div>
 		</div>
 	</div>
 
 </body>
+
 </html>
