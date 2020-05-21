@@ -11,6 +11,7 @@ public class Skill {
 	@Id
 	@Column(name = "id")
 	private int id;
+
 	@Column(name = "name")
 	private String name;
 
