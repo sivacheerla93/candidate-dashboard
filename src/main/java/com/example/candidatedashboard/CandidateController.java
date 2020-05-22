@@ -42,7 +42,7 @@ public class CandidateController {
 		} else if (sid != 0 && lid == 0) {
 			candids = candidates.findBySkillId(sid);
 		} else if (sid == 0 && lid != 0) {
-			candids = candidates.findBySkillId(lid);
+			candids = candidates.findByLocationId(lid);
 		}
 		return candids;
 	}

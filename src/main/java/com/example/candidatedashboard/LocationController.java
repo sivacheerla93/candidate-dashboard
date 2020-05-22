@@ -18,7 +18,7 @@ public class LocationController {
 	}
 
 	@GetMapping("/locations/{id}")
-	public Optional<Location> getSkill(@PathVariable("id") int id) {
+	public Optional<Location> getLocation(@PathVariable("id") int id) {
 		return locations.findById(id);
 	}
 }

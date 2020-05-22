@@ -145,21 +145,29 @@
 <body onload="getDropDownsData(); getCandidatesData('0', '0');">
 	<div class="container">
 		<div class="row">
-			<div class="col-sm-10">
-				Skill: <select id="skillsDD">
-					<option value="0">-- select --</option>
-				</select> Location: <select id="locationsDD">
+			<div class="col-sm-3">
+				Select Skill: <select id="skillsDD" class="form-control">
 					<option value="0">-- select --</option>
 				</select>
-				<button onclick="doFilter();">Search Candidates</button>
 			</div>
+			<div class="col-sm-3">
+				Select Location: <select id="locationsDD" class="form-control">
+					<option value="0">-- select --</option>
+				</select>
+			</div>
+			<div class="col-sm-2">
+				<button class="btn btn-primary" style="margin-top: 17px;"
+					onclick="doFilter();">Search Candidates</button>
+			</div>
+
 		</div>
 	</div>
 
 	<div class="container">
 		<div class="row">
 			<div class="col-sm-6">
-				<table id="candidates" border="1" width="100%">
+				<table id="candidates" class="table table-bordered"
+					style="margin-top: 40px;">
 					<thead>
 						<tr>
 							<th>Id</th>
@@ -173,13 +181,18 @@
 				</table>
 
 				<div class="pagination-container">
-					<nav>
+					<nav style="text-align: center;">
 					<ul class="pagination"></ul>
 					</nav>
 				</div>
 
 			</div>
-			<div class="col-sm-6" id="candidateInfo"></div>
+			<div class="col-sm-6" style="margin-top: 25px;">
+				<h2>
+					<u>Candidate Profile</u>
+				</h2>
+				<div id="candidateInfo"></div>
+			</div>
 		</div>
 	</div>
 
